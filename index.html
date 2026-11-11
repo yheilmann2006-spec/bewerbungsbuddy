@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1769aa">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1769aa">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1746a2">
+<title>BewerbungsBuddy</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f5fb;
+  color: #1d2b43;
+}
+header {
+  background: linear-gradient(135deg,#12377f,#2765c9);
+  color: white;
+  padding: 30px 20px;
+}
+.header-inner, main {
+  max-width: 850px;
+  margin: auto;
+}
+main { padding: 25px 16px; }
+.card {
+  background: white;
+  padding: 23px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 18px #00000010;
+}
+label {
+  display: block;
+  font-weight: bold;
+  margin: 16px 0 7px;
+}
+input, textarea {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ccd6e6;
+  border-radius: 9px;
+  font: inherit;
+}
+textarea { min-height: 90px; }
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 9px;
+  background: #1746a2;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+.secondary {
+  background: #e8effc;
+  color: #1746a2;
+}
+#output { display: none; }
+#result {
+  min-height: 300px;
+  line-height: 1.6;
+}
+.status { color: #66758b; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>🚀 BewerbungsBuddy</h1>
+    <p>Dein digitaler Bewerbungsassistent</p>
+  </div>
+</header>
+
+<main>
+<section class="card">
+  <h2>📝 Bewerbung erstellen</h2>
+
+  <label for="name">Dein Name *</label>
+  <input id="name" placeholder="Max Mustermann">
+
+  <label for="job">Gewünschter Beruf *</label>
+  <input id="job" placeholder="Fachkraft für Lagerlogistik">
+
+  <label for="company">Unternehmen *</label>
+  <input id="company" placeholder="Muster GmbH">
+
+  <label for="contact">Ansprechpartner</label>
+  <input id="contact" placeholder="Frau Müller">
+
+  <label for="experience">Berufserfahrung</label>
+  <textarea id="experience"></textarea>
+
+  <label for="strengths">Deine Stärken</label>
+  <textarea id="strengths"></textarea>
+
+  <label for="motivation">Deine Motivation</label>
+  <textarea id="motivation"></textarea>
+
+  <label for="advert">Stellenanzeige (optional)</label>
+  <textarea id="advert"></textarea>
+
+  <button onclick="createLetter()">✨ Anschreiben erstellen</button>
+  <p class="status">* Pflichtfelder</p>
+</section>
+
+<section class="card" id="output">
+  <h2>📄 Dein Anschreiben</h2>
+  <textarea id="result"></textarea>
+
+  <button onclick="printLetter()">📄 Als PDF speichern</button>
+  <button class="secondary" onclick="copyLetter()">Text kopieren</button>
+  <button class="secondary" onclick="downloadLetter()">Als Textdatei speichern</button>
+
+  <p id="message" class="status" aria-live="polite"></p>
+</section>
+</main>
+
+<script>
+function createLetter() {
+  const name = document.getElementById("name").value.trim();
+  const job = document.getElementById("job").value.trim();
+  const company = document.getElementById("company").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const experience = document.getElementById("experience").value.trim();
+  const strengths = document.getElementById("strengths").value.trim();
+  const motivation = document.getElementById("motivation").value.trim();
+
+  if (!name || !job || !company) {
+    alert("Bitte fülle Name, Beruf und Unternehmen aus.");
+    return;
+  }
+
+  const greeting = contact
+    ? "Sehr geehrte " + contact + ","
+    : "Sehr geehrte Damen und Herren,";
+
+  const letter = `${name}
+
+Bewerbung als ${job}
+
+${greeting}
+
+mit Interesse bewerbe ich mich bei ${company} als ${job}.
+
+${experience ? "Meine bisherigen Erfahrungen: " + experience : ""}
+
+${strengths ? "Zu meinen Stärken zählen: " + strengths : ""}
+
+${motivation ? "Meine Motivation: " + motivation : ""}
+
+Gerne überzeuge ich Sie in einem persönlichen Gespräch von meinen Fähigkeiten.
+
+Mit freundlichen Grüßen
+
+${name}`;
+
+  document.getElementById("result").value = letter;
+  document.getElementById("output").style.display = "block";
+  document.getElementById("message").textContent = "Dein Entwurf ist fertig.";
+  document.getElementById("output").scrollIntoView({behavior:"smooth"});
+}
+
+async function copyLetter() {
+  const text = document.getElementById("result").value;
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById("message").textContent = "Text kopiert!";
+  } catch {
+    document.getElementById("message").textContent =
+      "Bitte Text markieren und mit STRG + C kopieren.";
+  }
+}
+
+function downloadLetter() {
+  const text = document.getElementById("result").value;
+  if (!text.trim()) return;
+
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "Bewerbung.txt";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function printLetter() {
+  const text = document.getElementById("result").value;
+
+  if (!text.trim()) {
+    alert("Bitte zuerst ein Anschreiben erstellen.");
+    return;
+  }
+
+  const safeText = text.replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    alert("Bitte Pop-ups für diese Seite erlauben.");
+    return;
+  }
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="de">
+    <head>
+      <meta charset="UTF-8">
+      <title>Bewerbung</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          max-width: 750px;
+          margin: 50px auto;
+          line-height: 1.7;
+          color: #222;
+        }
+        pre {
+          white-space: pre-wrap;
+          font-family: Arial, sans-serif;
+          font-size: 12pt;
+        }
+        @media print {
+          body { margin: 0; }
+        }
+      </style>
+    </head>
+    <body>
+      <pre>${safeText}</pre>
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  printWindow.onload = () => printWindow.print();
+}
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(() => console.log("BewerbungsBuddy ist bereit."))
+      .catch(error => console.error("Fehler:", error));
+  });
+}
+</script>
+</body>
+</html>

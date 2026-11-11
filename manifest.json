@@ -1,0 +1,11 @@
+
+{
+  "name": "BewerbungsBuddy",
+  "short_name": "BewerbungsBuddy",
+  "description": "Dein Helfer für überzeugende und perfekte Bewerbungen.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#1769aa",
+  "lang": "de"
+}
